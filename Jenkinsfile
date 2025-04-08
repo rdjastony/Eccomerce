@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "yourdockerhubusername/your-image-name"
+        DOCKER_IMAGE = "abhishek7840/spring-boot-crud-example-master"
     }
 
     stages {
@@ -14,13 +14,14 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh mvn clean install
+                sh './mvnw clean install' // uses wrapper if available
+                // OR use 'sh 'mvn clean install'' if wrapper is not present
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                sh "docker build -t ${DOCKER_IMAGE} ."
             }
         }
 
@@ -28,7 +29,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    sh 'docker push $DOCKER_IMAGE'
+                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
@@ -41,4 +42,3 @@ pipeline {
         }
     }
 }
- 
