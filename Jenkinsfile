@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/rdjastony/Eccomerce'
+                git url: 'https://github.com/rdjastony/Eccomerce', branch: 'main'
             }
         }
 
