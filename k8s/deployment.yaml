@@ -13,7 +13,14 @@ spec:
         app: ecommerce
     spec:
       containers:
-        - name: ecommerce
-          image: ecommerceacr123.azurecr.io/ecommerce-crud:latest
+        - name: ecommerce-app
+          image: ecommerceacr123.azurecr.io/spring-boot-crud-example:latest
           ports:
             - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-service:3306/javatechie
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: Password

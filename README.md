@@ -1,150 +1,211 @@
-# 🛒 eCommerce CRUD API with DevOps CI/CD Pipeline
+# 🛒 Spring Boot CRUD Example with MySQL, Docker, Jenkins & Kubernetes
 
-This project is a Java Spring Boot–based CRUD API for managing eCommerce entities like products, orders, and customers. It is fully containerized and deployed to Azure Kubernetes Service (AKS) using DevOps tools like Docker, Terraform, Jenkins, and Azure Container Registry (ACR).
-
----
-
-## 📦 Features
-
-- Java Spring Boot REST API (CRUD)
-- Dockerized for containerization
-- Terraform for infrastructure provisioning on Azure
-- Jenkins for CI/CD automation
-- Kubernetes (AKS) deployment
-- Azure Container Registry (ACR) for image hosting
+This is a full-stack **Spring Boot CRUD application** with MySQL, built using **Maven**, containerized with **Docker**, deployed via **Kubernetes**, and integrated with **Jenkins CI/CD**. Ideal for showcasing **DevOps skills** in interviews and real-world scenarios.
 
 ---
 
-## 🧰 DevOps Tools & Technologies
+## 🔧 Tech Stack
 
-| Tool | Purpose |
-|------|--------|
-| Java + Spring Boot | Application development |
-| Maven | Build tool |
-| Docker | Containerization |
-| Terraform | Infrastructure as Code |
-| Azure CLI | Azure resource management |
-| Kubernetes (AKS) | Orchestration |
-| Azure Container Registry (ACR) | Docker image hosting |
-| Jenkins | CI/CD automation |
-| Git | Source control |
-| VS Code | Code editor |
+- 🧩 Spring Boot
+- 🐬 MySQL 8
+- ☸️ Kubernetes (AKS compatible)
+- 🐳 Docker & Docker Compose
+- 🧪 Jenkins (Pipeline CI/CD)
+- ☁️ Azure Container Registry (ACR)
+- 📦 Maven
+- ⚙️ Hibernate (JPA)
 
 ---
 
-## 🚀 Setup Instructions
+## 🚀 Project Setup
 
-### 🛠️ Prerequisites
+### 1. Prerequisites
 
-Install the following:
+Install these tools on your system:
 
-- [Java 17+](https://adoptium.net/)
-- [Maven](https://maven.apache.org/)
-- [Docker](https://www.docker.com/products/docker-desktop)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Kubectl CLI](https://kubernetes.io/docs/tasks/tools/)
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
-- [Terraform](https://developer.hashicorp.com/terraform/downloads)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/)
-- [Git](https://git-scm.com/)
-- [Jenkins (via Docker)](https://www.jenkins.io/doc/book/installing/docker/)
+- [JDK 17+](https://adoptopenjdk.net/)
+- [Maven](https://maven.apache.org/download.cgi)
+- [Jenkins](https://www.jenkins.io/download/)
+- Optional: [VS Code + Docker & Kubernetes extensions](https://code.visualstudio.com/)
 
 ---
 
-## 🏗️ Project Structure
-
-ecommerce-crud/ ├── src/ # Java source code ├── target/ # Maven build artifacts ├── Dockerfile # App container definition ├── Jenkinsfile # CI/CD pipeline config ├── ecommerce-deployment.yaml # Kubernetes Deployment ├── ecommerce-service.yaml # Kubernetes Service └── terraform/ ├── main.tf # Azure resources (AKS, ACR) ├── variables.tf └── outputs.tf
-
-yaml
-Copy
-Edit
-
----
-
-## 🔧 Running Locally
-
-### 1. Clone the Repository
+## 🧱 Architecture
 
 ```bash
-git clone https://github.com/yourusername/ecommerce-crud.git
-cd ecommerce-crud
-2. Build the Application
-bash
-Copy
-Edit
-mvn clean package
-3. Run Locally
-bash
-Copy
-Edit
-java -jar target/ecommerce-crud.jar
-# OR using Docker:
-docker build -t ecommerce-crud .
-docker run -p 8080:8080 ecommerce-crud
-☁️ Deploying to Azure (with Terraform)
-1. Login to Azure
-bash
-Copy
-Edit
-az login
-2. Create Azure Infrastructure
-bash
-Copy
-Edit
-cd terraform
-terraform init
-terraform apply
-Creates:
+                            ┌──────────────────────────┐
+                            │        Jenkins CI/CD     │
+                            └────────────┬─────────────┘
+                                         │
+                            ┌────────────▼─────────────┐
+                            │  Docker Build & Push     │
+                            └────────────┬─────────────┘
+                                         │
+                          ┌──────────────▼───────────────┐
+                          │ Azure Container Registry (ACR)│
+                          └──────────────┬───────────────┘
+                                         │
+                           ┌─────────────▼──────────────┐
+                           │  Kubernetes (AKS/Minikube) │
+                           └─────────────┬──────────────┘
+               ┌─────────────────────────▼────────────────────────┐
+               │ Pods: Spring Boot App (CRUD) + MySQL (Stateful) │
+               └──────────────────────────────────────────────────┘
 
-Resource Group
 
-AKS Cluster
+🐳 Docker Setup (Local)
+Step 1: Build & Start Locally
 
-Azure Container Registry
+docker-compose up --build
 
-🐳 Push Docker Image to ACR
+
+Docker Compose Structure
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: Password
+      MYSQL_DATABASE: javatechie
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - springboot-network
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-container
+    ports:
+      - "8080:8080"
+    networks:
+      - springboot-network
+
+volumes:
+  mysql_data:
+
+networks:
+  springboot-network:
+    driver: bridge
+
+
+☸️ Kubernetes Deployment
+1. MySQL Deployment
+yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Password"
+        - name: MYSQL_DATABASE
+          value: "javatechie"
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+2. Spring Boot App Deployment
+Ensure your environment variables are configured properly:
+
+yaml
+
+
+env:
+  - name: SPRING_DATASOURCE_URL
+    value: jdbc:mysql://mysql-service:3306/javatechie
+  - name: SPRING_DATASOURCE_USERNAME
+    value: root
+  - name: SPRING_DATASOURCE_PASSWORD
+    value: Password
+3. Deploy to Kubernetes
+
 bash
-Copy
-Edit
-az acr login --name <your-acr-name>
-docker tag ecommerce-crud <acr-name>.azurecr.io/ecommerce-crud
-docker push <acr-name>.azurecr.io/ecommerce-crud
-☸️ Deploy to Kubernetes (AKS)
-bash
-Copy
-Edit
-az aks get-credentials --resource-group <your-rg> --name <your-aks>
+
+kubectl apply -f mysql-deployment.yaml
 kubectl apply -f ecommerce-deployment.yaml
-kubectl apply -f ecommerce-service.yaml
-🔁 Jenkins CI/CD Setup
-1. Start Jenkins via Docker
+
+
+🧪 Verify & Troubleshoot
+Use kubectl logs <pod-name> to debug.
+
+If error is Communications link failure, check:
+
+MySQL is running (kubectl get pods)
+
+App has correct JDBC config
+
+Spring Boot waits for MySQL using initContainer or retry config
+
+⚙️ Jenkins Pipeline (CI/CD)
+Pipeline stages:
+
+Clone the Spring Boot repo
+
+Build the JAR using mvn clean install
+
+Build Docker image and tag it
+
+Push image to Azure Container Registry (ACR)
+
+Deploy to Kubernetes using kubectl apply
+
+You can write this as a Jenkinsfile or define it via Freestyle Pipeline.
+
+
+
+
+🔐 Docker Login with Azure ACR
+bash
+
+az login
+az acr login --name ecommerceacr123
+docker tag <local-image> ecommerceacr123.azurecr.io/spring-boot-crud-example:latest
+docker push ecommerceacr123.azurecr.io/spring-boot-crud-example:latest
+
+
+🔄 Common Errors & Fixes
+❌ Error	✅ Fix
+CrashLoopBackOff	Check logs. Usually DB connection issue
+ImagePullBackOff	Make sure you're logged into ACR and image is pushed
+CommunicationsException	App can't reach MySQL — verify service name & DNS
+Jenkins 403 or Login	Use admin and password from /var/jenkins_home/secrets/initialAdminPassword
+
+
+📁 Build Output
+After build:
+
 bash
 Copy
 Edit
-docker run -d -p 8081:8080 -p 50000:50000 --name jenkins -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
-2. Initial Jenkins Setup
-bash
-Copy
-Edit
-docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-Go to http://localhost:8081 and complete setup.
-
-3. Add Jenkins Pipeline
-Create a new pipeline job
-
-Point it to this repo
-
-Use the provided Jenkinsfile
-
-📡 API Endpoints (Sample)
-Method	Endpoint	Description
-GET	/products	List all products
-POST	/products	Add a new product
-PUT	/products/{id}	Update a product
-DELETE	/products/{id}	Delete a product
-💲 Billing Notes
-Tool	Free?	Notes
-Azure	❌	Billed for AKS, ACR, VMs
-Docker Desktop	✅	Free for personal use
-Terraform	✅	Free CLI
-Jenkins	✅	Free if self-hosted
-Git	✅	Free
-Kubernetes (local)	✅	Use Minikube or Docker Desktop to avoid costs
+target/spring-boot-crud-example-0.0.1-SNAPSHOT.jar
