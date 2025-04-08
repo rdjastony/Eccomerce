@@ -30,3 +30,4 @@ jenkins_home/
 .env
 *.key
 *.pem
+"azure/terraform.tfstate" 
