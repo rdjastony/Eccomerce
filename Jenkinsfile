@@ -15,11 +15,12 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'mvn clean install'
+            }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
 
@@ -27,7 +28,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    sh "docker push ${DOCKER_IMAGE}"
+                    sh 'docker push $DOCKER_IMAGE'
                 }
             }
         }
@@ -39,4 +40,4 @@ pipeline {
             }
         }
     }
-}
+}  
