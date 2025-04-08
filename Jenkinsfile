@@ -14,9 +14,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh './mvnw clean install' // uses wrapper if available
-                // OR use 'sh 'mvn clean install'' if wrapper is not present
-            }
+                sh 'mvn clean install'
         }
 
         stage('Build Docker Image') {
