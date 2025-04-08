@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.8.7-openjdk-17' 
+        }
+    }
 
     environment {
         DOCKER_IMAGE = "abhishek7840/spring-boot-crud-example-master"
@@ -40,4 +44,4 @@ pipeline {
             }
         }
     }
-}  
+}
